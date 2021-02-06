@@ -22,7 +22,10 @@ mutation {
 } 
 *** La funcion autenticarUsuario(input: AutenticarInput) : String debe tener un input diferente al del registro porque solo utiliza email y password
 *** Con JWT autenticarUsuario ahora retorna un Token, por lo que debo definirlo --> type Token {}
-
+*** nuevoProyecto(input: ProyectoInput) : Proyecto  --> Debe retornar un proyecto completo(nombre y ID)
+*** Para la entrada --> input ProyectoInput { nombre: String! } solo requiere el nombre el id lo asigna Mongo
+*** type Proyecto { nombre: String id: ID }--> Define la forma en la que vienen los datos       
+*** Para actualizar un proyecto actualizarProyecto(id: ID!, input: ProyectoInput) : Proyecto --> el id para saber que proyecto actualizar, es obligatorio
 */
 
 const { gql } = require('apollo-server');
@@ -30,18 +33,17 @@ const { gql } = require('apollo-server');
 
 const typeDefs = gql`
 
-    type Curso {
-        titulo: String
+    type Token {
+        token: String
     }
 
-    type Tecnologia {
-        tecnologia: String
+    type Proyecto {
+        nombre: String
+        id: ID
     }
 
     type Query {
-        obtenerCursos: [Curso]
-
-        obtenerTecnologia: [Tecnologia]
+        obtenerProyectos: [Proyecto]
     }
 
     input UsuarioInput {
@@ -55,14 +57,20 @@ const typeDefs = gql`
         password: String!
     }
 
-    type Token {
-        token: String
+    input ProyectoInput {
+        nombre: String!
     }
 
     type Mutation {
         crearUsuario(input: UsuarioInput) : String
 
         autenticarUsuario(input: AutenticarInput) : Token
+
+        nuevoProyecto(input: ProyectoInput) : Proyecto
+
+        actualizarProyecto(id: ID!, input: ProyectoInput) : Proyecto
+
+        eliminarProyecto(id: ID!) : String
     }
 
 `;
