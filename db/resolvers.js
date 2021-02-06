@@ -27,6 +27,7 @@
 // Importacion de los modelos
 const Usuario = require('../models/Usuario');
 const Proyecto = require('../models/Proyecto');
+const Tarea = require('../models/Tarea');
 // Dependecias
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -53,6 +54,15 @@ const resolvers = {
 
             // retornar todos los proyectos
             return proyectos;
+        },
+        obtenerTareas: async ( _, {input}, ctx ) => {
+
+            // Filtra todas las tareas que pertenezcan a un proyecto utilizando el id del proyecto
+            // Se asegura que la persona autenticada sea el creador --> .find({ creador: ctx.usuario.id })
+            // y trae todos los proyectos --> .where('proyecto') que coincidan con el id ingresado en el input --> .equals(input.proyecto)
+            const tareas = await Tarea.find({ creador: ctx.usuario.id }).where('proyecto').equals(input.proyecto);
+
+            return tareas;
         }
 
     },
@@ -171,7 +181,7 @@ const resolvers = {
                 throw new Error('Proyecto no encontrado');
             }
 
-            // Revisar que la persona que intenta editarlo sea el creador, proyecto.creador viene como Object --> console.log(typeof proyecto.creador);
+            // Revisar que la persona que intenta eliminar sea el creador, proyecto.creador viene como Object --> console.log(typeof proyecto.creador);
             // tengo que convertirlo en String, si es diferente al id que viene en ctx.usuario.id muestro un error
             if( proyecto.creador.toString() !== ctx.usuario.id ) {
                 throw new Error('No tienes las credenciales para eliminar');
@@ -182,6 +192,67 @@ const resolvers = {
 
             // Retorna un String como se especifica en el schema
             return "Proyecto eliminado";
+        },
+        nuevaTarea: async ( _, {input}, ctx ) => {
+
+            try {
+                const tarea = new Tarea(input);
+                
+                // Agrego el creador de la tarea
+                tarea.creador = ctx.usuario.id;
+
+                const resultado = await tarea.save()
+
+                // retorna una tarea
+                return resultado;
+
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        actualizarTarea: async ( _, {id,input,estado}, ctx) => {
+
+            // Revisar si la tarea existe, solo se requiere el id
+            let tarea = await Tarea.findById(id)
+
+            // si la tarea no exite muestra un error
+            if( !tarea ) {
+                throw new Error('Tarea no encontrada');
+            }
+
+            // Si la persona que intenta editar es el propietario, tarea.creador viene como Object
+            // tengo que convertirlo en String, si es diferente al id que viene en ctx.usuario.id muestro un error
+            if( tarea.creador.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes las credenciales para editar');
+            }
+
+            // Asignar el estado que viene en el input al estado previo
+            input.estado = estado;
+
+            // Guardar tarea, para encontrarlo necesita el id, el input nuevos datos, y como opciones "new: true" para retornar el nuevo resultado
+            tarea = await Tarea.findOneAndUpdate( {_id: id}, input , {new: true} )
+
+            // retornar la tarea
+            return tarea;
+        },
+        eliminarTarea: async ( _, { id }, ctx ) => {
+            // Revisar si la tarea existe
+            let tarea = await Tarea.findById( id );
+
+            // Si no existe mostrar mensaje de error
+            if( !tarea ) {
+                throw new Error('La tarea no existe');
+            }
+
+            // Revisar que la persona que intenta eliminar sea el creador, proyecto.creador viene como Object --> console.log(typeof proyecto.creador);
+            // tengo que convertirlo en String, si es diferente al id que viene en ctx.usuario.id muestro un error
+            if( tarea.creador.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes las credenciales para eliminar');
+            }
+
+            await Tarea.findByIdAndDelete({ _id: id });
+
+            return "Tarea Eliminada";
         }
     }
 }

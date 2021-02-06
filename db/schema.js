@@ -42,8 +42,23 @@ const typeDefs = gql`
         id: ID
     }
 
+    type Tarea {
+        nombre: String
+        id: ID
+        proyecto: String
+        estado: Boolean
+    }
+
     type Query {
+        # Obtener todos los proyectos
         obtenerProyectos: [Proyecto]
+
+        # Obtener todas las tareas que pertenecen a un proyecto especifico (filtrando por id de proyecto)
+        obtenerTareas(input: ProyectoIDInput) : [Tarea]
+    }
+
+    input ProyectoIDInput {
+        proyecto: String!
     }
 
     input UsuarioInput {
@@ -61,16 +76,24 @@ const typeDefs = gql`
         nombre: String!
     }
 
+    input TareaInput {
+        nombre: String!
+        proyecto: String!
+    }
+
     type Mutation {
+
+        # Proyectos
         crearUsuario(input: UsuarioInput) : String
-
         autenticarUsuario(input: AutenticarInput) : Token
-
         nuevoProyecto(input: ProyectoInput) : Proyecto
-
         actualizarProyecto(id: ID!, input: ProyectoInput) : Proyecto
-
         eliminarProyecto(id: ID!) : String
+
+        # Tareas
+        nuevaTarea(input: TareaInput) : Tarea
+        actualizarTarea(id: ID!, input: TareaInput, estado: Boolean) : Tarea
+        eliminarTarea(id: ID!) : String
     }
 
 `;
