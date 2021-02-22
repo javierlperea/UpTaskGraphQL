@@ -78,14 +78,16 @@ const typeDefs = gql`
 
     input TareaInput {
         nombre: String!
-        proyecto: String!
+        proyecto: String
     }
 
     type Mutation {
 
-        # Proyectos
+        # Usuarios
         crearUsuario(input: UsuarioInput) : String
         autenticarUsuario(input: AutenticarInput) : Token
+
+        # Proyectos
         nuevoProyecto(input: ProyectoInput) : Proyecto
         actualizarProyecto(id: ID!, input: ProyectoInput) : Proyecto
         eliminarProyecto(id: ID!) : String

@@ -18,7 +18,8 @@ const UsuariosSchema = mongoose.Schema({
         type: String,       // Tipo de dato
         required: true,     // dato obligatorio
         trim: true,         // elimina espacios
-        unique: true        // solo un email por cuenta 
+        unique: true,       // solo un email por cuenta 
+        lowercase: true     // todo en minusculas
     },
     password: {
         type: String,

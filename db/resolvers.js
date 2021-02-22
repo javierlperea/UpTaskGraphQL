@@ -35,12 +35,12 @@ require('dotenv').config({ path: 'variables.env' });    // la ruta siempre se es
 
 // Crea y firma un JWT
 const crearToken = ( usuario, secreta, expiresIn ) => {
-    console.log(usuario)
-    // extraigo id, email de usuario y se van a pasar como payload
-    const { id, email } = usuario;
+    // console.log(usuario) <-- Este se muestra en consola como registro: { token }
+    // extraigo id, email de usuario y nombre, estos se van a pasar como payload
+    const { id, email, nombre } = usuario;
 
-    // utilizando el metodo sign firmo el jwt y le paso id, email como payload, palabra secreta, y como objeto expiresIn
-    return jwt.sign( { id, email }, secreta, { expiresIn } );
+    // Con el metodo sign firmo el jwt y le paso id, email, nombre como payload, palabra secreta, y como objeto expiresIn
+    return jwt.sign( { id, email, nombre }, secreta, { expiresIn } );
 }
 
 
@@ -122,13 +122,12 @@ const resolvers = {
 
             // Dar acceso a la app, si la comprobacion es correcta se firma el token!
             return {
-                token: () => crearToken(existeUsuario, process.env.SECRETA, '2hr')
+                token: () => crearToken(existeUsuario, process.env.SECRETA, '4hr')
             }
 
         },
         nuevoProyecto: async ( _, {input}, ctx ) => {
             console.log('desde resolver', ctx)
-
             try {
                 
                 // creo una nueva instancia de Proyecto, recibe el input como argumento

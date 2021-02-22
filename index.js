@@ -26,6 +26,8 @@ const server = new ApolloServer({
     typeDefs, 
     resolvers,
     context: ({ req }) => {
+        // console.log( req.headers['authorization'] );
+        // Este token esta siendo enviado desde el cliente (React Native)
         // si hay un usuario autenticado el token tiene la authorization, sino es un string vacio
         const token = req.headers['authorization'] || '';
 
@@ -33,8 +35,12 @@ const server = new ApolloServer({
         if( token ) {
             try {
                 // Verifico el token (para leer el token necesito jwt)
-                const usuario = jwt.verify( token, process.env.SECRETA );
+                // Aqui recibo el token enviado desde el cliente, 
+                // elimino la parte Bearer para que no de error de invalid token y lo guardo como usuario
+                const usuario = jwt.verify( token.replace('Bearer ', ''), process.env.SECRETA );
 
+                // 
+                console.log(usuario)
                 // retorna el token y lo recibo en el resolver
                 return {
                     usuario
